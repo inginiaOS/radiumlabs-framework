@@ -15,15 +15,27 @@
       margin: 0;
     }
     img {
-      width: 340px;
-      animation: fadeIn 1.5s ease-in-out infinite alternate;
+      max-width: 300px;
+      animation: fadeIn 1s ease-in-out infinite alternate;
     }
     p {
       font-family: 'Kanit', sans-serif;
-      font-size: 22px;
+      font-size: 20px;
       color: white;
+      margin-top: 20px;
+      animation: fadeIn 1s ease-in-out infinite alternate;
+    }
+    button {
+      display: none;
       margin-top: 25px;
-      animation: fadeIn 1.5s ease-in-out infinite alternate;
+      padding: 12px 24px;
+      font-family: 'Kanit', sans-serif;
+      font-size: 18px;
+      background-color: #00c853;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
     @keyframes fadeIn {
       from { opacity: 0.5; }
@@ -35,43 +47,48 @@
 <body>
   <img src="https://img2.pic.in.th/pic/inginiaXradium-copy.md.png" alt="RadiumLabs Logo">
   <p>กรุณารอสักครู่...</p>
+  <button id="continueBtn">ดำเนินการต่อ</button>
 
   <script>
     async function main() {
       try {
-        // ✅ เริ่มต้น LIFF
         await liff.init({ liffId: "2007908663-bexwv7OQ" });
 
-        // ✅ ถ้ายังไม่ล็อกอิน → บังคับล็อกอินก่อน
         if (!liff.isLoggedIn()) {
-          liff.login({ redirectUri: window.location.href });
+          liff.login();
           return;
         }
 
-        // ✅ ดึง userId
         const profile = await liff.getProfile();
         const userId = profile.userId;
 
-        // ✅ ลิงก์ Google Form พร้อม prefill
         const googleFormUrl =
           "https://docs.google.com/forms/d/e/1FAIpQLSelQ5N6TtBqmE_ZDVCFx7o0xwm5_WkWNQvzxFz2MFcsY_qcIg/viewform?usp=pp_url&entry.1445787620=" +
           encodeURIComponent(userId);
 
-        // ✅ หน่วง 1.2 วินาทีให้โลโก้โชว์ก่อน
-        setTimeout(() => {
-          window.location.href = googleFormUrl;
-        }, 1200);
-      } catch (err) {
-        console.error("เกิดข้อผิดพลาด:", err);
-        document.body.innerHTML = `
-          <p style="color:white; font-family:'Kanit'; text-align:center;">
-            เกิดข้อผิดพลาดในการโหลด<br>กรุณาเปิดลิงก์นี้ผ่าน LINE อีกครั้ง
-          </p>`;
+        const btn = document.getElementById("continueBtn");
+        const text = document.querySelector("p");
+
+        // ✅ iPhone redirect อัตโนมัติ
+        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+          setTimeout(() => {
+            window.location.href = googleFormUrl;
+          }, 1500);
+        } else {
+          // ✅ Android ต้องกดเอง
+          text.textContent = "เข้าสู่ระบบสำเร็จ กดปุ่มด้านล่างเพื่อดำเนินการต่อ";
+          btn.style.display = "block";
+          btn.addEventListener("click", () => {
+            window.location.href = googleFormUrl;
+          });
+        }
+      } catch (error) {
+        console.error("❌ LIFF init error:", error);
+        document.querySelector("p").textContent = "เกิดข้อผิดพลาด กรุณารีเฟรชหน้านี้";
       }
     }
 
-    // ✅ รอให้ DOM โหลดเสร็จก่อนค่อยเรียก main()
-    document.addEventListener("DOMContentLoaded", main);
+    main();
   </script>
 </body>
 </html>
