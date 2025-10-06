@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>RadiumLabs Redirect</title>
@@ -23,19 +23,21 @@
       font-size: 20px;
       color: white;
       margin-top: 20px;
-      animation: fadeIn 1s ease-in-out infinite alternate;
     }
     button {
-      display: none;
-      margin-top: 25px;
-      padding: 12px 24px;
       font-family: 'Kanit', sans-serif;
-      font-size: 18px;
-      background-color: #00c853;
-      color: white;
+      background-color: #00FF99;
       border: none;
-      border-radius: 8px;
+      color: black;
+      padding: 12px 24px;
+      font-size: 18px;
+      border-radius: 10px;
+      margin-top: 25px;
       cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #00cc7a;
     }
     @keyframes fadeIn {
       from { opacity: 0.5; }
@@ -46,46 +48,30 @@
 </head>
 <body>
   <img src="https://img2.pic.in.th/pic/inginiaXradium-copy.md.png" alt="RadiumLabs Logo">
-  <p>กรุณารอสักครู่...</p>
-  <button id="continueBtn">ดำเนินการต่อ</button>
+  <p>กรุณากดปุ่มด้านล่างเพื่อเริ่มวิเคราะห์!!</p>
+  <button id="continueBtn" style="display:none;">เปิดแบบฟอร์ม</button>
 
   <script>
     async function main() {
-      try {
-        await liff.init({ liffId: "2007908663-bexwv7OQ" });
+      await liff.init({ liffId: "2007908663-bexwv7OQ" });
 
-        if (!liff.isLoggedIn()) {
-          liff.login();
-          return;
-        }
-
-        const profile = await liff.getProfile();
-        const userId = profile.userId;
-
-        const googleFormUrl =
-          "https://docs.google.com/forms/d/e/1FAIpQLSelQ5N6TtBqmE_ZDVCFx7o0xwm5_WkWNQvzxFz2MFcsY_qcIg/viewform?usp=pp_url&entry.1445787620=" +
-          encodeURIComponent(userId);
-
-        const btn = document.getElementById("continueBtn");
-        const text = document.querySelector("p");
-
-        // ✅ iPhone redirect อัตโนมัติ
-        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-          setTimeout(() => {
-            window.location.href = googleFormUrl;
-          }, 1500);
-        } else {
-          // ✅ Android ต้องกดเอง
-          text.textContent = "เข้าสู่ระบบสำเร็จ กดปุ่มด้านล่างเพื่อดำเนินการต่อ";
-          btn.style.display = "block";
-          btn.addEventListener("click", () => {
-            window.location.href = googleFormUrl;
-          });
-        }
-      } catch (error) {
-        console.error("❌ LIFF init error:", error);
-        document.querySelector("p").textContent = "เกิดข้อผิดพลาด กรุณารีเฟรชหน้านี้";
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
       }
+
+      const profile = await liff.getProfile();
+      const userId = profile.userId;
+
+      // Google Form URL พร้อม prefill
+      const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSelQ5N6TtBqmE_ZDVCFx7o0xwm5_WkWNQvzxFz2MFcsY_qcIg/viewform?usp=pp_url&entry.1445787620=" 
+        + encodeURIComponent(userId);
+
+      // แสดงปุ่มเมื่อระบบพร้อม
+      document.getElementById("continueBtn").style.display = "block";
+      document.getElementById("continueBtn").addEventListener("click", () => {
+        window.location.href = googleFormUrl;
+      });
     }
 
     main();
