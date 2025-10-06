@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
   <meta charset="UTF-8">
   <title>RadiumLabs Redirect</title>
@@ -16,76 +16,60 @@
     }
     img {
       max-width: 300px;
-      animation: fadeIn 1s ease-in-out infinite alternate;
+      animation: fadeIn 1.2s ease-in-out infinite alternate;
     }
     p {
       font-family: 'Kanit', sans-serif;
       font-size: 20px;
       color: white;
       margin-top: 20px;
+      animation: fadeIn 1.2s ease-in-out infinite alternate;
     }
-    button {
-      font-family: 'Kanit', sans-serif;
-      background-color: #00FF99;
-      border: none;
-      color: black;
-      padding: 12px 24px;
-      font-size: 18px;
-      border-radius: 10px;
-      margin-top: 25px;
-      cursor: pointer;
-      transition: background 0.3s ease;
+    @keyframes fadeIn {
+      from { opacity: 0.5; }
+      to { opacity: 1; }
     }
-    button:hover { background-color: #00cc7a; }
-
-    @keyframes fadeIn { from { opacity: 0.5; } to { opacity: 1; } }
   </style>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
   <img src="https://img2.pic.in.th/pic/inginiaXradium-copy.md.png" alt="RadiumLabs Logo">
-  <p>กรุณากดปุ่มด้านล่างเพื่อดำเนินการต่อ</p>
-  <button id="continueBtn" style="display:none;">เปิดแบบฟอร์ม</button>
+  <p>กำลังเชื่อมต่อระบบ...</p>
 
   <script>
-    const btn = document.getElementById("continueBtn");
-
-    async function initLIFF() {
+    async function main() {
       try {
         await liff.init({ liffId: "2007908663-bexwv7OQ" });
 
+        // ถ้ายังไม่ล็อกอิน → บังคับล็อกอิน
         if (!liff.isLoggedIn()) {
           liff.login();
           return;
         }
 
+        // ดึงข้อมูลผู้ใช้
         const profile = await liff.getProfile();
         const userId = profile.userId;
 
-        const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSelQ5N6TtBqmE_ZDVCFx7o0xwm5_WkWNQvzxFz2MFcsY_qcIg/viewform?usp=pp_url&entry.1445787620=" 
-          + encodeURIComponent(userId);
+        // แนบ userId เข้าไปใน Google Form URL
+        const googleFormUrl =
+          "https://docs.google.com/forms/d/e/1FAIpQLSelQ5N6TtBqmE_ZDVCFx7o0xwm5_WkWNQvzxFz2MFcsY_qcIg/viewform?usp=pp_url&entry.1445787620=" +
+          encodeURIComponent(userId);
 
-        // แสดงปุ่มแน่นอน
-        btn.style.display = "block";
-        btn.onclick = () => window.location.href = googleFormUrl;
-
+        // รอให้โลโก้แสดงสวย ๆ ก่อน แล้วเปิดเบราว์เซอร์นอก
+        setTimeout(() => {
+          liff.openWindow({
+            url: googleFormUrl,
+            external: true, // ✅ เปิดใน Chrome/Safari แทนที่จะอยู่ใน LIFF
+          });
+        }, 1500);
       } catch (err) {
-        console.log("❌ LIFF Error:", err);
-        // fallback แสดงปุ่มแม้ liff จะ error
-        btn.style.display = "block";
-        btn.onclick = () => alert("ไม่สามารถโหลด LIFF ได้ กรุณารีเฟรชหน้านี้อีกครั้ง");
+        console.error("เกิดข้อผิดพลาด:", err);
+        document.body.innerHTML = "<p style='color:white;'>เกิดข้อผิดพลาดในการเชื่อมต่อ LIFF</p>";
       }
     }
 
-    // ✅ Fallback Timer: ถ้า LIFF โหลดช้าเกิน 2 วินาที → แสดงปุ่มเอง
-    setTimeout(() => {
-      if (btn.style.display === "none") {
-        btn.style.display = "block";
-        btn.onclick = () => location.reload();
-      }
-    }, 2000);
-
-    initLIFF();
+    main();
   </script>
 </body>
 </html>
