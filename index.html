@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>RadiumLabs Redirect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: black;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    img {
+      width: 340px; /* โลโก้ใหญ่ขึ้น */
+      animation: fadeIn 1.5s ease-in-out infinite alternate;
+    }
+    p {
+      font-family: 'Kanit', sans-serif;
+      font-size: 22px;
+      color: white;
+      margin-top: 25px;
+      animation: fadeIn 1.5s ease-in-out infinite alternate;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0.5; }
+      to { opacity: 1; }
+    }
+  </style>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <img src="https://img2.pic.in.th/pic/inginiaXradium-copy.md.png" alt="RadiumLabs Logo">
+  <p>กรุณารอสักครู่...</p>
+
+  <script>
+    async function main() {
+      try {
+        // ✅ รอให้ SDK พร้อมก่อน
+        await liff.ready;
+        await liff.init({ liffId: "2007908663-bexwv7OQ" });
+
+        // ✅ ตรวจสถานะล็อกอิน
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        // ✅ ดึงข้อมูลโปรไฟล์
+        const profile = await liff.getProfile();
+        const userId = profile.userId;
+
+        // ✅ สร้างลิงก์ Google Form พร้อม prefill userId
+        const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSelQ5N6TtBqmE_ZDVCFx7o0xwm5_WkWNQvzxFz2MFcsY_qcIg/viewform?usp=pp_url&entry.1445787620=" 
+          + encodeURIComponent(userId);
+
+        // ✅ หน่วงเวลา 1.2 วินาทีให้โลโก้แสดงก่อน redirect
+        setTimeout(() => {
+          window.location.replace(googleFormUrl);
+        }, 1200);
+
+      } catch (err) {
+        console.error("เกิดข้อผิดพลาด:", err);
+        document.body.innerHTML = `
+          <p style="color:white; font-family: 'Kanit'; font-size:18px; text-align:center;">
+            เกิดข้อผิดพลาดในการเชื่อมต่อ LIFF<br>กรุณาเปิดลิงก์นี้ผ่าน LINE อีกครั้ง
+          </p>
+        `;
+      }
+    }
+    main();
+  </script>
+</body>
+</html>
