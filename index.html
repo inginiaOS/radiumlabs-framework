@@ -36,45 +36,56 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
-    button:hover {
-      background-color: #00cc7a;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0.5; }
-      to { opacity: 1; }
-    }
+    button:hover { background-color: #00cc7a; }
+
+    @keyframes fadeIn { from { opacity: 0.5; } to { opacity: 1; } }
   </style>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
   <img src="https://img2.pic.in.th/pic/inginiaXradium-copy.md.png" alt="RadiumLabs Logo">
-  <p>กรุณากดปุ่มด้านล่างเพื่อเริ่มวิเคราะห์!!</p>
+  <p>กรุณากดปุ่มด้านล่างเพื่อดำเนินการต่อ</p>
   <button id="continueBtn" style="display:none;">เปิดแบบฟอร์ม</button>
 
   <script>
-    async function main() {
-      await liff.init({ liffId: "2007908663-bexwv7OQ" });
+    const btn = document.getElementById("continueBtn");
 
-      if (!liff.isLoggedIn()) {
-        liff.login();
-        return;
+    async function initLIFF() {
+      try {
+        await liff.init({ liffId: "2007908663-bexwv7OQ" });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        const userId = profile.userId;
+
+        const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSelQ5N6TtBqmE_ZDVCFx7o0xwm5_WkWNQvzxFz2MFcsY_qcIg/viewform?usp=pp_url&entry.1445787620=" 
+          + encodeURIComponent(userId);
+
+        // แสดงปุ่มแน่นอน
+        btn.style.display = "block";
+        btn.onclick = () => window.location.href = googleFormUrl;
+
+      } catch (err) {
+        console.log("❌ LIFF Error:", err);
+        // fallback แสดงปุ่มแม้ liff จะ error
+        btn.style.display = "block";
+        btn.onclick = () => alert("ไม่สามารถโหลด LIFF ได้ กรุณารีเฟรชหน้านี้อีกครั้ง");
       }
-
-      const profile = await liff.getProfile();
-      const userId = profile.userId;
-
-      // Google Form URL พร้อม prefill
-      const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSelQ5N6TtBqmE_ZDVCFx7o0xwm5_WkWNQvzxFz2MFcsY_qcIg/viewform?usp=pp_url&entry.1445787620=" 
-        + encodeURIComponent(userId);
-
-      // แสดงปุ่มเมื่อระบบพร้อม
-      document.getElementById("continueBtn").style.display = "block";
-      document.getElementById("continueBtn").addEventListener("click", () => {
-        window.location.href = googleFormUrl;
-      });
     }
 
-    main();
+    // ✅ Fallback Timer: ถ้า LIFF โหลดช้าเกิน 2 วินาที → แสดงปุ่มเอง
+    setTimeout(() => {
+      if (btn.style.display === "none") {
+        btn.style.display = "block";
+        btn.onclick = () => location.reload();
+      }
+    }, 2000);
+
+    initLIFF();
   </script>
 </body>
 </html>
