@@ -13,10 +13,9 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      overflow: hidden;
     }
     img {
-      width: 340px; /* โลโก้ใหญ่ขึ้น */
+      width: 340px;
       animation: fadeIn 1.5s ease-in-out infinite alternate;
     }
     p {
@@ -40,39 +39,39 @@
   <script>
     async function main() {
       try {
-        // ✅ รอให้ SDK พร้อมก่อน
-        await liff.ready;
+        // ✅ เริ่มต้น LIFF
         await liff.init({ liffId: "2007908663-bexwv7OQ" });
 
-        // ✅ ตรวจสถานะล็อกอิน
+        // ✅ ถ้ายังไม่ล็อกอิน → บังคับล็อกอินก่อน
         if (!liff.isLoggedIn()) {
-          liff.login();
+          liff.login({ redirectUri: window.location.href });
           return;
         }
 
-        // ✅ ดึงข้อมูลโปรไฟล์
+        // ✅ ดึง userId
         const profile = await liff.getProfile();
         const userId = profile.userId;
 
-        // ✅ สร้างลิงก์ Google Form พร้อม prefill userId
-        const googleFormUrl = "https://docs.google.com/forms/d/e/1FAIpQLSelQ5N6TtBqmE_ZDVCFx7o0xwm5_WkWNQvzxFz2MFcsY_qcIg/viewform?usp=pp_url&entry.1445787620=" 
-          + encodeURIComponent(userId);
+        // ✅ ลิงก์ Google Form พร้อม prefill
+        const googleFormUrl =
+          "https://docs.google.com/forms/d/e/1FAIpQLSelQ5N6TtBqmE_ZDVCFx7o0xwm5_WkWNQvzxFz2MFcsY_qcIg/viewform?usp=pp_url&entry.1445787620=" +
+          encodeURIComponent(userId);
 
-        // ✅ หน่วงเวลา 1.2 วินาทีให้โลโก้แสดงก่อน redirect
+        // ✅ หน่วง 1.2 วินาทีให้โลโก้โชว์ก่อน
         setTimeout(() => {
-          window.location.replace(googleFormUrl);
+          window.location.href = googleFormUrl;
         }, 1200);
-
       } catch (err) {
         console.error("เกิดข้อผิดพลาด:", err);
         document.body.innerHTML = `
-          <p style="color:white; font-family: 'Kanit'; font-size:18px; text-align:center;">
-            เกิดข้อผิดพลาดในการเชื่อมต่อ LIFF<br>กรุณาเปิดลิงก์นี้ผ่าน LINE อีกครั้ง
-          </p>
-        `;
+          <p style="color:white; font-family:'Kanit'; text-align:center;">
+            เกิดข้อผิดพลาดในการโหลด<br>กรุณาเปิดลิงก์นี้ผ่าน LINE อีกครั้ง
+          </p>`;
       }
     }
-    main();
+
+    // ✅ รอให้ DOM โหลดเสร็จก่อนค่อยเรียก main()
+    document.addEventListener("DOMContentLoaded", main);
   </script>
 </body>
 </html>
